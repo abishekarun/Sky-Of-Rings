@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>The DreamStop</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular-animate.min.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
+  <script src="js/thedreamstop.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="css/frontpage.css">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link rel="stylesheet" type="text/css" href="css/about.css">
+  <link href="css/simple-sidebar.css" rel="stylesheet">
+
+
+<script src="js/thedreamstop.js"></script>
+<script type="text/javascript">
+sessionStorage.removeItem('pid');
+</script>
+<script type="text/javascript">
+function showimages(cat)
+  {
+     var a=["personal","branded","grocery","beverage","bread","gourmet","household"];
+     var s;
+     
+     for(s in a)
+     {//console.log(a[s]);
+      if(a[s].localeCompare(cat)==0){$("#"+a[s]+"img").show();
+      document.getElementById("category").innerHTML= $('#'+a[s]).parent().find("h4").text();sessionStorage.catname=document.getElementById("category").innerHTML;
+      sessionStorage.category=parseInt(s)+1;if($("#"+a[s]).attr("class").localeCompare("collapse in")==0)$("#"+a[s]+"img").hide();}
+      else 
+      {
+        $("#"+a[s]+"img").hide();
+       // $("#"+a[s]).toggleClass("in");
+       $("#"+a[s]).attr("class","collapse");
+      }
+
+     }
+  }
+  function sub(subID)
+  {
+    sessionStorage.sub=subID;
+    
+  }
+$(document).ready(function()
+{
+   /*$('[data-toggle="popover"]').popover({title:"Warning!",content:function(){ return $(".content").html();},placement:"auto",html: true});   */
+   
+  function displayVals()
+  {
+      var cityVal=$('#City').val();
+      var area=$('#area').val();
+      $('#bindElement').html("<b> City:&nbsp;</b> " + cityVal +"&nbsp;&nbsp;&nbsp;"+ "<b> Area:&nbsp;</b> " + area);
+      console.log('here');
+  }
+  $("#locsub").click(displayVals);
+   var category=sessionStorage.getItem("category");
+  if(category==null)
+    window.location.href="index.html";
+  else
+  {
+    //$("#"+category+"img").show();
+    var a=["personal","branded","grocery","beverage","bread","gourmet","household"];
+    document.getElementById("category").innerHTML=sessionStorage.catname;
+    showimages(a[parseInt(category)-1]);
+    $("#"+a[parseInt(category)-1]).toggleClass("in");
+  }
+  
+  
+});
+
+</script>
+  <link rel="stylesheet" type="text/css" href="css/frontpage.css">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link rel="stylesheet" type="text/css" href="css/about.css">
+  <link href="css/simple-sidebar.css" rel="stylesheet">
+  <style type="text/css">
+
+  /* local styling */  
+
+  h4
+  {
+    cursor:pointer;
+  }
+  ul
+  {
+    list-style-type: none;
+  }
+  .thumbnail
+  {
+    width:250px;
+    height:270px;
+    margin-right:400px;
+  }
+  .thumbnail>img
+  {
+    width:300px;
+    height: 200px;
+  }
+  
+  </style>
+  </head>
+  <body> 
+
+<div style="position:absolute;top:120px;left:350px;"> <!-- referring to the display of groups separated by arrows -->
+  <span> <a href="index.html">Home&nbsp;</a><i class="fa fa-arrow-right"></i>&nbsp;<a href="subcategory1.html" id="category"></a></span>
+</div>
+
+<div class="loader"></div> <!-- page loading animation -->
+
+<div class="container-fluid" ng-app="thedreamstop"> <!-- beginning of ng-app-->
+
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation" style="height:100px;" ng-controller="nav">
+
+    <div class="container-fluid" style="position: relative;top: 50%;-webkit-transform: translateY(-50%);-ms-transform: translateY(-50%);transform: translateY(-50%);line-height:100%;padding-right: 25px;padding-left:15px;" >
+
+        
+      <div class="navbar-collapse collapse">
+
+        <div ng-controller="myCtrl" > <!-- side menu bar-->
+          <i class="fa fa-lg fa-bars menu-button" id="sidebar" ng-click="onClick()" ></i>
+        </div>
+
+        <div class="navbar-header" > <!-- logo -->
+          <a class="navbar-brand" href="index.html" style="padding-left:80px;" title="Click this to go home!">The DreamStop</a> 
+        </div>
+
+        <!-- beginning of search box -->
+
+        <ul class="nav navbar-nav" style="width: 30%;margin-top:10px;margin-left: 40px;">
+          <li style="width:450px;">
+            <div class="input-group" style="width:450px;" ng-controller="search">
+              <input type="text" ng-enter="searchlistent()" class="form-control" ng-model="searchdata" placeholder="Search for a product, category or brand" style="width:280px;margin:0px;">
+                <span >
+                  <div id="searchdiv" class="dropdown">
+                    <button class="dropdown-toggle" data-toggle="dropdown" ng-click="searchlist()" id="subsearch" ><span class="glyphicon glyphicon-search"></span> Submit</button>
+                    <ul id="results" class="dropdown-menu" style="margin-left:0px;margin-top: 0px;">
+                      <li ng-repeat="x in search" ng-click="open(search[$index].catID,search[$index].subCatID,search[$index].PID)">
+                        <table  id="t02">
+                          <tr style="height: 10%;width:100%;" id="searchlist">
+                          <!-- <td ng-if="x.q!=-1"  align="center" style="padding: 10px;">
+                           <input type="number" style="color:black;" min="1" max="10" value="1" id="{{x.PID}}" ng-model="search[$index].qty">
+                          </td> -->
+                          <td ng-if="x.q!=-1"  align="center" style="padding: 10px;">
+                           <img src="http://thedreamstop.com/api/prodImage.php?PID={{x.PID}}&width=400" alt={{ x.name }} width="80" height="80" />
+                          </td>
+                          <td style="padding: 10px;" align="center">
+                          <div class="desc">{{ x.name }}</div>
+                          </td>
+                          <td ng-if="x.q!=-1"  style="padding: 0px;"align="center">
+                          <b>{{ x.q }} {{x.unit}}</b>
+                          </td>
+                          <td ng-if="x.q!=-1"  align="center" style="padding: 10px;"><div class="desc">Rs.{{ x.price }}</div></td>
+                          <!-- <td ng-if="x.q!=-1"  align="center" style="padding: 10px;"><button class="btn" ng-disabled="loggedout()" ng-click="add(search[$index].PID,search[$index].qty,x.name,search[$index].q*1,x.price*search[$index].qty,search[$index].unit)">ADD</button></td> -->
+                          </tr>
+                        </table>
+                        
+                      </li>
+                    </ul>
+                  </div>
+                </span>
+
+            </div>
+          </li>
+        </ul>
+
+        <!-- end of displaying search results on entering queries -->
+
+        <!-- remaining navbar -->
+
+      <div ng-controller="log_in_out">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a tabindex="0" data-toggle="popover" data-trigger="click focus"><span id="bindElement"></span></a></li>
+          <li ng-if="loggedin()" id="notification_li" ng-controller="search">
+            <span id="notification_count" ng-bind="titems"></span>
+            <a style="align: center;" data-toggle="modal" data-target="#cartmodal"><span class="glyphicon glyphicon-shopping-cart"></span>&nbsp; &nbsp;Cart</a>
+          </li>
+          <li ng-if="!loggedin()"><a href="Register.html"><span class="glyphicon glyphicon-user"></span> Register</a></li>
+          <li ng-if="!loggedin()"><a href="#" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+          <li ng-if="loggedin()"><a href="Account.html">Welcome &nbsp;<b>{{username}}</b></a></li>
+          <li ng-if="loggedin()" ng-click="logout()"><a href="#">Logout</a></li>
+        
+          <div class="content" style="display:none;">
+           <p align="center"><br>
+             Changing location will cause the page to be refreshed leading to loss of saved data.Do you want to proceed? <br><br>
+             <button type="button" class="btn btn-primary" id="continue" >Continue</button>
+           </p>
+          </div>
+        </ul>
+      </div>
+
+      <!-- end of navbar -->
+
+    </div><!--/.nav-collapse -->
+  </div>
+</div>
+  
+  <!-- beginning of login modal -->
+
+<div class="modal fade" ng-controller="login" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title" id="myModalLabel">Login<span ng-if="wuser" style="color:red;font-size:15px;margin-left:30px;vertical-align:middle;">&nbsp;&nbsp;Wrong username or password.Try again.</span></h3>
+      </div>
+
+      <div class="modal-body">
+        <div class="container">
+          <form role="form" name="RegForm">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="lemail">Email:</label>
+                <input type="email" ng-enter="userlogin()" class="form-control" name=" lemail" id="lemail"  required="" ng-model="user.email"/>
+                <div ng-show="RegForm.lemail.$dirty && RegForm.lemail.$invalid" style="color:red;font-weight:bold;">
+                  <span ng-show="RegForm.lemail.$error.required">E-Mail is a required field</span>
+                  <span ng-show="RegForm.lemail.$error.email" >This is not a valid email.</span>
+                </div>
+              </div>  
+
+              <div class="form-group">
+                <label for="lpwd">Password:</label>
+                <input type="password" ng-enter="userlogin()" class="form-control" id="lpwd" name="lpwd"  required="" ng-model="user.password"/>
+                <div ng-show="RegForm.lpwd.$dirty" style="color:red;font-weight:bold;">
+                  <span ng-show="RegForm.lpwd.$error.required">Password is a required field</span>
+                </div>
+              </div> 
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      
+    <div class="modal-footer">
+      <p align="center">
+        <button type="submit" class="btn btn-success"  style="width:40%;" ng-disabled="RegForm.lemail.$dirty && RegForm.lemail.$invalid ||RegForm.lpwd.$dirty && RegForm.lpwd.$invalid" ng-click="userlogin()">Login</button> <br><br>
+        <a href="#">Forgot password?</a>
+      </p>
+    </div>
+  </div>
+</div>
+</div>
+  <!-- end of login modal -->
+
+<!-- beginning of cart -->
+<!-- items listing -->
+<div class="modal fade" ng-controller="itemdisplay" id="cartmodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" >
+  <div class="modal-dialog" >
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title" id="myModalLabel">Cart</h3>
+      </div>
+      <div class="modal-body" >
+      <table style="width: 100%;" cellpadding="10" cellspacing="10" >
+        <tr ng-if="tprice!=0"style="padding: 10px;" align="center"><h4><b>Total bill : Rs. {{tprice}}</b></h4></tr>
+        <tr ng-if="tprice!=0" style="padding: 10px;" align="center" style="text-align: center;background:white;float: none;">
+          <th style="text-align: center;">Qty</th>
+          <th style="text-align: center;">Name</th>   
+          <th style="text-align: center;">Weight</th>
+          <th style="text-align: center;">Price</th>
+        </tr>
+
+        <tr ng-if="tprice!=0" ng-repeat="x in addeditems" style="text-align: center;">
+          <td> {{x.qty}} </td>
+          <td> {{x.nam}} </td>
+          <td> {{ x.q }} {{x.unit}}</td>
+          <td> Rs.{{x.price}} </td>
+          <td><button class="btn btn-xs" ng-click="remove(x.id)" ><span class="glyphicon glyphicon-trash"></span></button></td>
+        </tr>
+
+        <tr ng-if="tprice!=0"><h3 align="center">{{titems}} items in cart</h3></tr>
+      </table>
+      </div>
+    
+      <div class="modal-footer">
+        <p align="center">
+          <button type="button" class="btn btn-success" data-dismiss="modal" data-toggle="modal" data-target="#detailsmodal"style="width:40%;">Proceed <span class="glyphicon glyphicon-arrow-right" style="float: right;"></span></button> <br><br>
+        </p> 
+      </div>
+    </div>
+  </div>
+</div>
+<!-- items listing over -->
+<!-- proceeding to delivery -->
+
+<div class="modal fade" id="detailsmodal" ng-controller="cart" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title" id="myModalLabel">Delivery Details</h3>
+      </div>
+      <div class="modal-body">
+        <form role="form" name="delivery">
+          
+          <div class="form-group">
+            <input type="text" class="form-control" placeholder="Name" name="name" id="name" ng-model="shipdata.name" required=""></input><br>
+            <div ng-show="delivery.name.$dirty && delivery.name.$invalid" style="color:red;font-weight:bold;margin-bottom:10px;">
+                  <span ng-show="delivery.name.$error.required">Name is a required field</span>
+                  
+             </div>
+           </div>
+           <div class="form-group">
+            <input class="form-control" placeholder="Telephone Number" name="phno" id="phno" ng-model="shipdata.phno" minlength="8" maxlength="10" required=""></input><br>
+            <div ng-show="delivery.phno.$dirty && delivery.phno.$invalid" style="color:red;font-weight:bold; margin-bottom:10px;">
+                  <span ng-show="delivery.phno.$error.required">Telephone is a required field</span>
+                  <span ng-show="delivery.phno.$error.number" >Please enter only numbers</span>
+                  <span ng-show="delivery.phno.$error.maxlength">Number of digits can't be more than 10!Kindly Check!</span>
+                  <!--span ng-show="delivery.phno.$error.minlength">Number of digits can't be less than 8!Kindly Check!</span-->
+             </div>
+             </div>
+            <input type="text" class="form-control" placeholder="Address" ng-model="shipdata.address"></input><br>
+          
+        
+        </form>
+     </div>
+      <div class="modal-footer">
+        <p align="center">
+          <button type="button" class="btn btn-success" data-dismiss="modal" data-toggle="modal" data-target="#cartmodal"style="width:40%;">
+          <span class="glyphicon glyphicon-arrow-left" style="float: left;"></span> Back
+          </button>
+          <button type="button" class="btn btn-success" data-dismiss="modal" data-toggle="modal" ng-click="addorder()"style="width:40%;" ng-disabled="delivery.name.$dirty&&delivery.name.$invalid||delivery.phno.$dirty&&delivery.phno.$invalid">Confirm Order<span class="glyphicon glyphicon-arrow-right" style="float: right;"></span>
+          </button><br><br>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ending delivery -->
+
+<!-- beginning pay -->
+<div class="modal fade" id="paymodal" ng-controller="pay" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title" id="myModalLabel">The DreamStop</h3>
+      </div>
+      <div class="modal-body">
+        <p><h4>Your order has been successfully placed.</h4></p><p><h4>Please pay the bill amount on delivery.</h4></p>
+        <p><h5>The order ID for future reference is <b><span id="orderid"></span></b>.You can view it in the the list of your orders in your account page.</h5></p>
+        <p><h5>Hoping to see you again soon.Have a nice day.</h5></p>
+      </div>
+      
+      <div class="modal-footer">
+        <p align="center">
+          <button type="button" class="btn btn-success" ng-click="clearall()" style="width:40%;"><span class="fa fa-times-circle" style="float: left;"></span>Close</button><br><br>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ending pay -->
+
+<!-- ending cart  modal-->
+
+<!-- beginning location modal -->
+
+<div class="modal fade" ng-controller="nav" id="locmodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="" data-keyboard="false" data-backdrop="static" ng-if="!loggedin()">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="myModalLabel">Location</h3>
+      </div>
+      <div class="modal-body">
+        <div class="container">
+          <form role="form">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="lemail">City:</label>
+                <select class="form-control" style="vertical-align: middle;padding-top: 5px;margin-top: 8px;margin-right: 30px;" id="City" >
+                  <option ng-repeat="x in cities">{{x}}</option>
+                </select> 
+              </div>  
+            <div class="form-group" id="area1">
+              <label>Area:</label>
+              <select class="form-control" style="vertical-align: middle;padding-top: 5px;margin-top: 8px;margin-right: 30px;"  id="a">
+                <option ng-repeat="x in areas[0]">{{x}}</option>
+              </select>
+            </div> 
+          <div class="form-group" id="area2">
+           <label >Area:</label>
+           <select class="form-control" style="vertical-align: middle;padding-top: 5px;margin-top: 8px;margin-right: 30px;"  id="b">
+            <option ng-repeat="x in areas[1]">{{x}}</option>
+           </select>
+          </div> 
+
+          <div class="form-group" id="area3">
+          <label>Area:</label>
+          <select class="form-control" style="vertical-align: middle;padding-top: 5px;margin-top: 8px;margin-right: 30px;"  id="c">
+          <option ng-repeat="x in areas[2]">{{x}}</option>
+          </select> 
+          </div> 
+        </form>
+      </div>
+    </div>
+  </div>
+    <div class="modal-footer">
+      <p align="center">
+      <button type="button" class="btn btn-success" data-dismiss="modal" style="width:40%;" id="locsub">Submit</button>
+      </p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ending location modal --> 
+
+<!-- sidebar content -->
+  <table style="height:100%;width:100%;" >
+    <tr>
+     <td> 
+ 
+   <div id="wrapper" style="padding-top: 100px;padding-left:0px;">
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" style="padding: 0px;" ng-controller="drawer">
+            <ul class="sidebar-nav">
+              <br>
+                <li class="sidebar-brand" >
+                    <h3 style="color: white;padding-top: 10px;">The DreamStop</h3>
+                </li>
+                  <hr> 
+                  <br>              
+                <li style="background: rgba(255,255,255,0.2);color:white;">
+                    <a href="index.html"><i class="fa fa-home" id="home-fa" style="color: white;"></i>&nbsp;&nbsp;Home</a>
+                </li>
+                
+                <li >
+                    <a style="color: white;" ng-click="account()"><span class="glyphicon glyphicon-user" style="color: white;"></span>&nbsp;&nbsp;My Account</a>
+                </li>
+                
+                <li style="background: rgba(255,255,255,0.2);color:white;">
+                    <a href="About.html"><span class="glyphicon glyphicon-info-sign" style="color:white"></span>&nbsp;&nbsp;About Us</a>
+                </li>
+               
+               <li >
+                    <a style="color: white;" href="FAQ.html"><span class="glyphicon glyphicon-question-sign" style="color: white;"></span>&nbsp;&nbsp;FAQ</a>
+                </li>
+
+            </ul>
+        </div> 
+        <!-- ending of sidebar -->
+  </div>
+</td>
+</tr>
+</table>
+
+<!-- beginning of collapsible sidebar -->
+<div ng-controller="tiles">
+<div class="container" data-role="page" id="breadcollapse" style="margin-left:0px;padding-left: 0px;">
+  <div class="jumbotron" id="subcat">
+
+    <h3 style="text-align: center;"> Main Categories </h3> 
+    <br>
+    <span data-toggle="collapse" data-target="#bread" onclick="showimages('bread')"><i class="fa" ng-class="{'fa-plus-square':!colbread,'fa-minus-square':colbread}" style="float:left;margin-right:5px;"></i><h4>Bread Dairy and Eggs</h4>
+     
+    <div id="bread" class="collapse">
+      
+      <ul>
+        <a href="Items.html" onclick="sub(1);sessionStorage.subcategory='Bakery Products'"><span><li> <i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp;&nbsp; Bakery Products</li></span></a>
+        <a href="Items.html" onclick="sub(2);sessionStorage.subcategory='Eggs'"><span><li><i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp; &nbsp;Eggs</li></span></a>
+        <a href="Items.html" onclick="sub(3);sessionStorage.subcategory='Dairy Products'"><span><li><i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp; &nbsp;Dairy Products</li></span></a>
+        
+      </ul>
+    </div>
+    </span>
+  
+    <span data-toggle="collapse" data-target="#beverage" onclick="showimages('beverage')"><i class="fa" ng-class="{'fa-plus-square':!colbev,'fa-minus-square':colbev}" style="float:left;margin-right:5px;"></i><h4>Beverages</h4>
+     
+      <div id="beverage" class="collapse">
+      <ul>
+        <a href="Items.html" onclick="sub(1);sessionStorage.subcategory='Energy Drinks'"><span><li> <i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp;&nbsp;Energy Drinks</li></span></a>
+        <a href="Items.html" onclick="sub(2);sessionStorage.subcategory='Soft Drinks'"><span><li><i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp; &nbsp; Soft Drinks</li></span></a>
+ 
+
+      </ul>
+    </div>
+    </span>
+    <span data-toggle="collapse" data-target="#branded" onclick="showimages('branded')"><i class="fa" ng-class="{'fa-plus-square':!colbrand,'fa-minus-square':colbrand}" style="float:left;margin-right:5px;"></i><h4>Branded Foods</h4>
+      
+      <div id="branded" class="collapse" >
+      <ul>
+        <a href="Items.html" onclick="sub(1);sessionStorage.subcategory='Biscuits'"><span><li> <i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp;&nbsp;Biscuits</li></span></a>
+        </ul>
+    </div>
+    </span>
+    <span data-toggle="collapse" data-target="#grocery" onclick="showimages('grocery')"><i class="fa " ng-class="{'fa-plus-square':!colgrocery,'fa-minus-square':colgrocery}" style="float:left;margin-right:5px;"></i><h4>Grocery and Staples</h4>
+      
+      <div id="grocery" class="collapse" >
+      <ul>
+        <a href="Items.html" onclick="sub(1);sessionStorage.subcategory='Oils'"><span><li> <i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp;&nbsp;Oil</li></span></a>
+        <a href="Items.html" onclick="sub(2);sessionStorage.subcategory='Dals and Pulses'"><span><li> <i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp;&nbsp;Dals and Pulses</li></span></a>
+        <a href="Items.html" onclick="sub(3);sessionStorage.subcategory='Rice & Rice Products'"><span><li> <i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp;&nbsp;Rice & Rice Products</li></span></a>
+      </ul>
+    </div>
+    </span>
+    <span data-toggle="collapse" data-target="#household" onclick="showimages('household')"><i class="fa" ng-class="{'fa-plus-square':!colhousehold,'fa-minus-square':colhousehold}" style="float:left;margin-right:5px;"></i><h4>Household</h4> 
+      
+      <div id="household" class="collapse" >
+      <ul>
+        <a href="Items.html" onclick="sub(1);sessionStorage.subcategory='Kitchen and Dining'"><span><li> <i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp;&nbsp;Kitchen and Dining</li></span></a>
+        <a href="Items.html" onclick="sub(2);sessionStorage.subcategory='Detergents'"><span><li> <i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp;&nbsp;Detergents</li></span></a>
+        <a href="Items.html" onclick="sub(3);Plasticware"><span><li> <i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp;&nbsp;Plasticware</li></span></a>
+      </ul>
+    </div>
+    </span>
+    <span data-toggle="collapse" data-target="#gourmet" onclick="showimages('gourmet')"><i class="fa" ng-class="{'fa-plus-square':!colgour,'fa-minus-square':colgour}" style="float:left;margin-right:5px;"></i><h4>Imported and Gourmet</h4>
+     
+      <div id="gourmet" class="collapse" >
+      <ul>
+        <a href="Items.html" onclick="sub(1);sessionStorage.subcategory='Imported Snacks'"><span><li> <i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp;&nbsp;Imported Snacks</li></span></a>
+        <a href="Items.html" onclick="sub(2);sessionStorage.subcategory='Imported Beverages'"><span><li> <i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp;&nbsp;Imported Beverages</li></span></a>
+        <a href="Items.html" onclick="sub(3);sessionStorage.subcategory='Chocolates & Confectionaries'"><span><li> <i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp;&nbsp;Chocolates & Confectionaries</li></span></a>
+      </ul>
+    </div>
+    </span>
+    <span data-toggle="collapse" data-target="#personal" onclick="showimages('personal')"><i class="fa" ng-class="{'fa-plus-square':!colpc,'fa-minus-square':colpc}" style="float:left;margin-right:5px;"></i><h4>Personal Care</h4>
+      
+      <div id="personal" class="collapse" >
+      <ul>
+        <a href="Items.html" onclick="sub(1);sessionStorage.subcategory='Baby Products'"><span><li> <i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp;&nbsp;Baby Products</li></span></a>
+        <a href="Items.html" onclick="sub(2);sessionStorage.subcategory='Deos and Perfumes'"><span><li> <i class="fa fa-long-arrow-right"></i>&nbsp;&nbsp;&nbsp;Deos and Perfumes</li></span></a>
+      </ul>
+    </div>
+    </span>
+  </div>
+</div>
+
+<!-- ending of sidebar -->
+
+<!-- images display of subcategories -->
+
+<div class="row" style="position:absolute;left:350px;top:200px;z-index:1" id="breadimg">
+  <a href="Items.html" onclick="sub(1);sessionStorage.subcategory='Bakery Products'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail">
+    <img src="images/Subcategory/bakery.jpg" alt="Bread" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Bakery Products</h3>
+      </div>
+    </div>
+  </div>
+</a>
+
+ <a href="Items.html" onclick="sub(3);sessionStorage.subcategory='Dairy Products'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail" style="margin-right:30px;">
+    <img src="images/Subcategory/dairy-products.jpg" alt="Dairy Products" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Dairy Products</h3>
+      </div>
+    </div>
+  </div> </a>
+   <a href="Items.html" onclick="sub(2);sessionStorage.subcategory='Eggs'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail">
+    <img src="images/Subcategory/eggs.jpg" alt="Eggs" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Eggs</h3>
+      </div>
+    </div>
+  </div></a>
+</div>
+  
+<div class="row" style="position:absolute;left:350px;top:200px;z-index:1" id="beverageimg">
+ <a href="Items.html" onclick="sub(1);sessionStorage.subcategory='Energy Drinks'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail">
+    <img src="images/Subcategory/energy-drinks.PNG" alt="Energy Drinks" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Energy Drinks</h3>
+      </div>
+    </div>
+  </div></a>
+ <a href="Items.html" onclick="sub(2);sessionStorage.subcategory='Soft Drinks'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail">
+    <img src="images/Subcategory/soft-drinks.PNG" alt="Soft Drinks" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Soft Drinks</h3>
+      </div>
+    </div>
+  </div>
+</div></a>
+
+ <div class="row" style="position:absolute;left:350px;top:200px;z-index:1" id="brandedimg">
+<a href="Items.html" onclick="sub(1);sessionStorage.subcategory='Biscuits'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail">
+    <img src="images/Subcategory/Biscuits.PNG" alt="Biscuits" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Biscuits</h3>
+      </div>
+    </div>
+  </div></a>
+</div>
+
+<div class="row" style="position:absolute;left:350px;top:200px;z-index:1" id="groceryimg">
+<a href="Items.html" onclick="sub(1);sessionStorage.subcategory='Oils'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail">
+    <img src="images/Subcategory/oils.PNG" alt="Oils" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Oils</h3>
+      </div>
+    </div>
+  </div></a>
+<a href="Items.html" onclick="sub(2);sessionStorage.subcategory='Dals and Pulses'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail">
+    <img src="images/Subcategory/pulses.PNG" alt="pulses" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Dals and Pulses</h3>
+      </div>
+    </div>
+  </div></a>
+
+<a href="Items.html" onclick="sub(3);sessionStorage.subcategory='Rice & Rice Products'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail">
+    <img src="images/Subcategory/rice.jpg" alt="rice products" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Rice & Rice Products</h3>
+      </div>
+    </div>
+  </div></a>
+</div>
+<div class="row" style="position:absolute;left:350px;top:200px;z-index:1" id="householdimg"> 
+<a href="Items.html" onclick="sub(1);sessionStorage.subcategory='Kitchen and Dining'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail">
+    <img src="images/Subcategory/kitchen.PNG" alt="Kitchen Dining" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Kitchen and Dining</h3>
+      </div>
+    </div>
+  </div></a>
+<a href="Items.html" onclick="sub(2);sessionStorage.subcategory='Detergents'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail">
+    <img src="images/Subcategory/detergents.PNG" alt="Detergents" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Detergents</h3>
+      </div>
+    </div>
+  </div></a>
+  <a href="Items.html" onclick="sub(3);sessionStorage.subcategory='Plasticware'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail">
+    <img src="images/Subcategory/plasticware.PNG" alt="Plasticware" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Plasticware</h3>
+      </div>
+    </div>
+  </div></a>
+</div>
+
+<div class="row" style="position:absolute;left:350px;top:200px;z-index:1" id="gourmetimg">
+<a href="Items.html" onclick="sub(1);sessionStorage.subcategory='Imported Snacks'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail">
+    <img src="images/Subcategory/imported-Snacks.PNG" alt="Imported Snacks" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Imported Snacks</h3>
+      </div>
+    </div>
+  </div></a>
+<a href="Items.html" onclick="sub(2);sessionStorage.subcategory='Imported Beverages'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail">
+    <img src="images/Subcategory/imported-beverages.PNG" alt="Imported Beverages" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Imported Beverages</h3>
+      </div>
+    </div>
+  </div></a>
+  <a href="Items.html" onclick="sub(3);sessionStorage.subcategory='Chocolates'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail">
+    <img src="images/Subcategory/confectionery.PNG" alt="Chocolates" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Chocolates</h3>
+      </div>
+    </div>
+  </div></a>
+</div>
+
+<div class="row" style="position:absolute;left:350px;top:200px;z-index:1" id="personalimg">
+<a href="Items.html" onclick="sub(1);sessionStorage.subcategory='Baby Products'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail">
+    <img src="images/Subcategory/baby.PNG" alt="Baby Products" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Baby Products</h3>
+      </div>
+    </div>
+  </div></a>
+<a href="Items.html" onclick="sub(2);sessionStorage.subcategory='Deos and Perfumes'"><div class="col-sm-6 col-md-4" >
+    <div class="thumbnail">
+    <img src="images/Subcategory/deos.PNG" alt="Deos and Perfumes" class="img-responsive">
+      <div class="caption" >
+        <h3 style="text-align:center">Deos and Perfumes</h3>
+      </div>
+    </div>
+  </div>
+</a>
+</div>
+
+</div>
+  
+  
+  </div>
+
+  </div>   
+</table>
+
+</div>
+
+<!-- beginning of bottom part -->
+
+<tr>
+  <td>
+  <div class="container-fluid" style="padding-right: 0px;padding-left: 0px;margin-top: 10px;" >
+    <div class="Mobile-App" id="bottom">
+      <h3 id="playstore">Finish Grocery Shopping on the Go!<br>
+      Download the TheDreamStop Mobile App Now!</h3><br>
+      <a href="#"><img src="images/gplay.jpg" alt="Google Play Store" id="google"></a>
+      <h3 id="follow"> Follow us on </h3>
+      <figure class="member-photo"><a href="https://www.facebook.com/pages/Thedreamstop/907727009269574"><i class="fa fa-facebook-square fa-4x" id="facebook"></i></figure>
+      <figure class="member-photo"><a href="https://twitter.com/thedreamstop"><i class="fa fa-twitter-square fa-4x" id="twitter"></i></figure>
+    </div>
+  </div>   
+  </td>
+</tr>
+</table>
+
+<!-- end of bottom part -->
+
+
+  </div> 
+  </div> <!-- ending the my app-->
+  <script src="js/thedreamstop.js"></script>
+
+
+ 
+</body>
+</html>
+
+
+ 
