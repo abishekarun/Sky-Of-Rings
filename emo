@@ -1,0 +1,22 @@
+import sys
+import os
+import numpy as np
+import PIL
+from matplotlib import pyplot as plt
+import cv2.cv as cv
+
+winname = "myWindow"
+win = cv.NamedWindow(winname, cv.CV_WINDOW_AUTOSIZE)
+
+invideo = cv.CaptureFromFile("chayya1.avi")
+
+totalNumberOfFrames = int(cv.GetCaptureProperty(invideo, cv.CV_CAP_PROP_FRAME_COUNT))
+framesprocessing = totalNumberOfFrames
+print(totalNumberOfFrames)
+while (True):
+    im = cv.QueryFrame(invideo)
+    cv.ShowImage(winname, im)
+    if cv.WaitKey() == 27: # ASCII 27 is the ESC key
+        break
+del invideo
+cv.DestroyWindow(winname)

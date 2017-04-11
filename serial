@@ -1,0 +1,6 @@
+import serial
+ser = serial.Serial('COM5',9600,timeout = 0)
+while(1):
+    var = raw_input("1 or 0")
+    ser.write(var)
+    
