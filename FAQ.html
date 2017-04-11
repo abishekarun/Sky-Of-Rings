@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>The DreamStop</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular-animate.min.js"></script>
+  
+  <script src="js/thedreamstop.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/frontpage.css">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link rel="stylesheet" type="text/css" href="css/about.css">
+  <link href="css/simple-sidebar.css" rel="stylesheet">
+
+<script type="text/javascript">
+sessionStorage.removeItem('pid');
+</script>
+<style type="text/css">
+  .loader {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background: url('images/page-loader.gif') 50% 50% no-repeat rgb(249,249,249);
+} 
+</style>
+</head>
+
+<body>
+
+<div class="loader"></div> <!-- page loading animation -->
+
+<div class="container-fluid" ng-app="thedreamstop"> <!-- beginning of ng-app-->
+
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation" style="height:100px;" ng-controller="nav">
+
+    <div class="container-fluid" style="position: relative;top: 50%;-webkit-transform: translateY(-50%);-ms-transform: translateY(-50%);transform: translateY(-50%);line-height:100%;padding-right: 25px;padding-left:15px;" >
+
+        
+      <div class="navbar-collapse collapse">
+
+        <div ng-controller="myCtrl" > <!-- side menu bar-->
+          <i class="fa fa-lg fa-bars menu-button" id="sidebar" ng-click="onClick()" ></i>
+        </div>
+
+        <div class="navbar-header" > <!-- logo -->
+          <a class="navbar-brand" href="index.html" style="padding-left:80px;" title="Click this to go home!">The DreamStop</a> 
+        </div>
+
+        <!-- beginning of search box -->
+
+        <ul class="nav navbar-nav" style="width: 30%;margin-top:10px;margin-left: 40px;">
+          <li style="width:450px;">
+            <div class="input-group" style="width:450px;" ng-controller="search">
+              <input type="text" ng-enter="searchlistent()" class="form-control" ng-model="searchdata" placeholder="Search for a product, category or brand" style="width:280px;margin:0px;">
+                <span >
+                  <div id="searchdiv" class="dropdown">
+                    <button class="dropdown-toggle" data-toggle="dropdown" ng-click="searchlist()" id="subsearch" ><span class="glyphicon glyphicon-search"></span> Submit</button>
+                    <ul id="results" class="dropdown-menu" style="margin-left:0px;margin-top: 0px;">
+                      <li ng-repeat="x in search" ng-click="open(search[$index].catID,search[$index].subCatID,search[$index].PID)">
+                        <table  id="t02">
+                          <tr style="height: 10%;width:100%;" id="searchlist">
+                          <!-- <td ng-if="x.q!=-1"  align="center" style="padding: 10px;">
+                           <input type="number" style="color:black;" min="1" max="10" value="1" id="{{x.PID}}" ng-model="search[$index].qty">
+                          </td> -->
+                          <td ng-if="x.q!=-1"  align="center" style="padding: 10px;">
+                           <img src="http://thedreamstop.com/api/prodImage.php?PID={{x.PID}}&width=400" alt={{ x.name }} width="80" height="80" />
+                          </td>
+                          <td style="padding: 10px;" align="center">
+                          <div class="desc">{{ x.name }}</div>
+                          </td>
+                          <td ng-if="x.q!=-1"  style="padding: 0px;"align="center">
+                          <b>{{ x.q }} {{x.unit}}</b>
+                          </td>
+                          <td ng-if="x.q!=-1"  align="center" style="padding: 10px;"><div class="desc">Rs.{{ x.price }}</div></td>
+                          <!-- <td ng-if="x.q!=-1"  align="center" style="padding: 10px;"><button class="btn" ng-disabled="loggedout()" ng-click="add(search[$index].PID,search[$index].qty,x.name,search[$index].q*1,x.price*search[$index].qty,search[$index].unit)">ADD</button></td> -->
+                          </tr>
+                        </table>
+                        
+                      </li>
+                    </ul>
+                  </div>
+                </span>
+
+            </div>
+          </li>
+        </ul>
+
+        <!-- end of displaying search results on entering queries -->
+
+        <!-- remaining navbar -->
+
+      <div ng-controller="log_in_out">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a tabindex="0" data-toggle="popover" data-trigger="click focus"><span id="bindElement"></span></a></li>
+          <li ng-if="loggedin()" id="notification_li" ng-controller="search">
+            <span id="notification_count" ng-bind="titems"></span>
+            <a style="align: center;" data-toggle="modal" data-target="#cartmodal"><span class="glyphicon glyphicon-shopping-cart"></span>&nbsp; &nbsp;Cart</a>
+          </li>
+          <li ng-if="!loggedin()"><a href="Register.html"><span class="glyphicon glyphicon-user"></span> Register</a></li>
+          <li ng-if="!loggedin()"><a href="#" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+          <li ng-if="loggedin()"><a href="Account.html">Welcome &nbsp;<b>{{username}}</b></a></li>
+          <li ng-if="loggedin()" ng-click="logout()"><a href="#">Logout</a></li>
+        
+          <div class="content" style="display:none;">
+           <p align="center"><br>
+             Changing location will cause the page to be refreshed leading to loss of saved data.Do you want to proceed? <br><br>
+             <button type="button" class="btn btn-primary" id="continue" >Continue</button>
+           </p>
+          </div>
+        </ul>
+      </div>
+
+      <!-- end of navbar -->
+
+    </div><!--/.nav-collapse -->
+  </div>
+</div>
+  
+  <!-- beginning of login modal -->
+
+<div class="modal fade" ng-controller="login" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title" id="myModalLabel">Login<span ng-if="wuser" style="color:red;font-size:15px;margin-left:30px;vertical-align:middle;">&nbsp;&nbsp;Wrong username or password.Try again.</span></h3>
+      </div>
+
+      <div class="modal-body">
+        <div class="container">
+          <form role="form" name="RegForm">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="lemail">Email:</label>
+                <input type="email" ng-enter="userlogin()" class="form-control" name=" lemail" id="lemail"  required="" ng-model="user.email"/>
+                <div ng-show="RegForm.lemail.$dirty && RegForm.lemail.$invalid" style="color:red;font-weight:bold;">
+                  <span ng-show="RegForm.lemail.$error.required">E-Mail is a required field</span>
+                  <span ng-show="RegForm.lemail.$error.email" >This is not a valid email.</span>
+                </div>
+              </div>  
+
+              <div class="form-group">
+                <label for="lpwd">Password:</label>
+                <input type="password" ng-enter="userlogin()" class="form-control" id="lpwd" name="lpwd"  required="" ng-model="user.password"/>
+                <div ng-show="RegForm.lpwd.$dirty" style="color:red;font-weight:bold;">
+                  <span ng-show="RegForm.lpwd.$error.required">Password is a required field</span>
+                </div>
+              </div> 
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      
+    <div class="modal-footer">
+      <p align="center">
+        <button type="submit" class="btn btn-success"  style="width:40%;" ng-disabled="RegForm.lemail.$dirty && RegForm.lemail.$invalid ||RegForm.lpwd.$dirty && RegForm.lpwd.$invalid" ng-click="userlogin()">Login</button> <br><br>
+        <a href="#">Forgot password?</a>
+      </p>
+    </div>
+  </div>
+</div>
+</div>
+  <!-- end of login modal -->
+
+<!-- beginning of cart -->
+<!-- items listing -->
+<div class="modal fade" ng-controller="itemdisplay" id="cartmodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" >
+  <div class="modal-dialog" >
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title" id="myModalLabel">Cart</h3>
+      </div>
+      <div class="modal-body" >
+      <table style="width: 100%;" cellpadding="10" cellspacing="10" >
+        <tr ng-if="tprice!=0"style="padding: 10px;" align="center"><h4><b>Total bill : Rs. {{tprice}}</b></h4></tr>
+        <tr ng-if="tprice!=0" style="padding: 10px;" align="center" style="text-align: center;background:white;float: none;">
+          <th style="text-align: center;">Qty</th>
+          <th style="text-align: center;">Name</th>   
+          <th style="text-align: center;">Weight</th>
+          <th style="text-align: center;">Price</th>
+        </tr>
+
+        <tr ng-if="tprice!=0" ng-repeat="x in addeditems" style="text-align: center;">
+          <td> {{x.qty}} </td>
+          <td> {{x.nam}} </td>
+          <td> {{ x.q }} {{x.unit}}</td>
+          <td> Rs.{{x.price}} </td>
+          <td><button class="btn btn-xs" ng-click="remove(x.id)" ><span class="glyphicon glyphicon-trash"></span></button></td>
+        </tr>
+
+        <tr ng-if="tprice!=0"><h3 align="center">{{titems}} items in cart</h3></tr>
+      </table>
+      </div>
+    
+      <div class="modal-footer">
+        <p align="center">
+          <button type="button" class="btn btn-success" data-dismiss="modal" data-toggle="modal" data-target="#detailsmodal"style="width:40%;">Proceed <span class="glyphicon glyphicon-arrow-right" style="float: right;"></span></button> <br><br>
+        </p> 
+      </div>
+    </div>
+  </div>
+</div>
+<!-- items listing over -->
+<!-- proceeding to delivery -->
+
+<div class="modal fade" id="detailsmodal" ng-controller="cart" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title" id="myModalLabel">Delivery Details</h3>
+      </div>
+      <div class="modal-body">
+        <form role="form" name="delivery">
+          
+          <div class="form-group">
+            <input type="text" class="form-control" placeholder="Name" name="name" id="name" ng-model="shipdata.name" required=""></input><br>
+            <div ng-show="delivery.name.$dirty && delivery.name.$invalid" style="color:red;font-weight:bold;margin-bottom:10px;">
+                  <span ng-show="delivery.name.$error.required">Name is a required field</span>
+                  
+             </div>
+           </div>
+           <div class="form-group">
+            <input class="form-control" placeholder="Telephone Number" name="phno" id="phno" ng-model="shipdata.phno" minlength="8" maxlength="10" required=""></input><br>
+            <div ng-show="delivery.phno.$dirty && delivery.phno.$invalid" style="color:red;font-weight:bold; margin-bottom:10px;">
+                  <span ng-show="delivery.phno.$error.required">Telephone is a required field</span>
+                  <span ng-show="delivery.phno.$error.number" >Please enter only numbers</span>
+                  <span ng-show="delivery.phno.$error.maxlength">Number of digits can't be more than 10!Kindly Check!</span>
+                  <!--span ng-show="delivery.phno.$error.minlength">Number of digits can't be less than 8!Kindly Check!</span-->
+             </div>
+             </div>
+            <input type="text" class="form-control" placeholder="Address" ng-model="shipdata.address"></input><br>
+          
+        
+        </form>
+     </div>
+      <div class="modal-footer">
+        <p align="center">
+          <button type="button" class="btn btn-success" data-dismiss="modal" data-toggle="modal" data-target="#cartmodal"style="width:40%;">
+          <span class="glyphicon glyphicon-arrow-left" style="float: left;"></span> Back
+          </button>
+          <button type="button" class="btn btn-success" data-dismiss="modal" data-toggle="modal" ng-click="addorder()"style="width:40%;" ng-disabled="delivery.name.$dirty&&delivery.name.$invalid||delivery.phno.$dirty&&delivery.phno.$invalid">Confirm Order<span class="glyphicon glyphicon-arrow-right" style="float: right;"></span>
+          </button><br><br>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ending delivery -->
+
+<!-- beginning pay -->
+<div class="modal fade" id="paymodal" ng-controller="pay" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title" id="myModalLabel">The DreamStop</h3>
+      </div>
+      <div class="modal-body">
+        <p><h4>Your order has been successfully placed.</h4></p><p><h4>Please pay the bill amount on delivery.</h4></p>
+        <p><h5>The order ID for future reference is <b><span id="orderid"></span></b>.You can view it in the the list of your orders in your account page.</h5></p>
+        <p><h5>Hoping to see you again soon.Have a nice day.</h5></p>
+      </div>
+      
+      <div class="modal-footer">
+        <p align="center">
+          <button type="button" class="btn btn-success" ng-click="clearall()" style="width:40%;"><span class="fa fa-times-circle" style="float: left;"></span>Close</button><br><br>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ending pay -->
+
+<!-- ending cart  modal-->
+
+<!-- beginning location modal -->
+
+<div class="modal fade" ng-controller="nav" id="locmodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="" data-keyboard="false" data-backdrop="static" ng-if="!loggedin()">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="myModalLabel">Location</h3>
+      </div>
+      <div class="modal-body">
+        <div class="container">
+          <form role="form">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="lemail">City:</label>
+                <select class="form-control" style="vertical-align: middle;padding-top: 5px;margin-top: 8px;margin-right: 30px;" id="City" >
+                  <option ng-repeat="x in cities">{{x}}</option>
+                </select> 
+              </div>  
+            <div class="form-group" id="area1">
+              <label>Area:</label>
+              <select class="form-control" style="vertical-align: middle;padding-top: 5px;margin-top: 8px;margin-right: 30px;"  id="a">
+                <option ng-repeat="x in areas[0]">{{x}}</option>
+              </select>
+            </div> 
+          <div class="form-group" id="area2">
+           <label >Area:</label>
+           <select class="form-control" style="vertical-align: middle;padding-top: 5px;margin-top: 8px;margin-right: 30px;"  id="b">
+            <option ng-repeat="x in areas[1]">{{x}}</option>
+           </select>
+          </div> 
+
+          <div class="form-group" id="area3">
+          <label>Area:</label>
+          <select class="form-control" style="vertical-align: middle;padding-top: 5px;margin-top: 8px;margin-right: 30px;"  id="c">
+          <option ng-repeat="x in areas[2]">{{x}}</option>
+          </select> 
+          </div> 
+        </form>
+      </div>
+    </div>
+  </div>
+    <div class="modal-footer">
+      <p align="center">
+      <button type="button" class="btn btn-success" data-dismiss="modal" style="width:40%;" id="locsub">Submit</button>
+      </p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ending location modal --> 
+
+<!-- sidebar content -->
+  <table style="height:100%;width:100%;" >
+    <tr>
+     <td> 
+ 
+   <div id="wrapper" style="padding-top: 100px;padding-left:0px;">
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" style="padding: 0px;" ng-controller="drawer">
+            <ul class="sidebar-nav">
+              <br>
+                <li class="sidebar-brand" >
+                    <h3 style="color: white;padding-top: 10px;">The DreamStop</h3>
+                </li>
+                  <hr> 
+                  <br>              
+                <li style="background: rgba(255,255,255,0.2);color:white;">
+                    <a href="index.html"><i class="fa fa-home" id="home-fa" style="color: white;"></i>&nbsp;&nbsp;Home</a>
+                </li>
+                
+                <li >
+                    <a style="color: white;" ng-click="account()"><span class="glyphicon glyphicon-user" style="color: white;"></span>&nbsp;&nbsp;My Account</a>
+                </li>
+                
+                <li style="background: rgba(255,255,255,0.2);color:white;">
+                    <a href="About.html"><span class="glyphicon glyphicon-info-sign" style="color:white"></span>&nbsp;&nbsp;About Us</a>
+                </li>
+               
+               <li >
+                    <a style="color: white;" href="FAQ.html"><span class="glyphicon glyphicon-question-sign" style="color: white;"></span>&nbsp;&nbsp;FAQ</a>
+                </li>
+
+            </ul>
+        </div> 
+        <!-- ending of sidebar -->
+  </div>
+</td>
+</tr>
+</table>
+
+  <div style="margin-top:20px" align="center">
+    <h1>FAQ Page</h1>
+  </div>
+
+  <div class="container" id="faq">
+    <div class="jumbotron" style="background-color:rgba(255,255,255,0.8)" style="padding-left:20px;padding-right:20px">
+      <div id="about_site" >
+        <h3 style="margin-bottom:30px;">About The DreamStop</h3>
+       <span data-toggle="collapse" data-target="#about_site_q1"><h4>1.&nbsp;What is The DreamStop?</h4></span>
+        <div id="about_site_q1" class="collapse" style="margin-right:550px">Thedreamstop is a mobile grocery application that makes your shopping experience easier and hassle-free were we create the best online buying experience for you by brining you the best offers and products from trusted local stores. We know how big a pain grocery shopping can be, and how we all dislike going to the store now the products you orders are delivered in less than 6 hours, you pay only when you are satisfied with the product ordered and a no question asked return policy. Isn’t it great!!!!</div><br>
+
+        <span data-toggle="collapse" data-target="#about_site_q2"><h4>2.&nbsp;What are our service areas?</h4></span>
+        <div id="about_site_q2" class="collapse" style="margin-right:550px">We serve in Nagpur & Chennai. Follow us on Facebook & Twitter to be updated about our services.</div><br>
+      </div>
+      
+      <div id="order_payment_delivery">
+        <h3 style="margin-bottom:30px;"> Order,Payment and Delivery</h3>
+        <span data-toggle="collapse" data-target="#order_payment_delivery_q1"><h4>1.&nbsp;What is the minimum order value?</h4></span>
+        <div id="order_payment_delivery_q1" class="collapse">There is no minimum order value.</div><br>
+
+        <span data-toggle="collapse" data-target="#order_payment_delivery_q2"><h4>2.&nbsp;Can I change the delivery address of my order?</h4></span>
+        <div id="order_payment_delivery_q2" class="collapse" style="margin-right:550px">You cannot change the delivery address once the order is placed. You can cancel the previous order and place a new one.</div><br>
+
+       <span data-toggle="collapse" data-target="#order_payment_delivery_q3"><h4>3.&nbsp;How should the payment be done?</h4></span>
+        <div id="order_payment_delivery_q3" class="collapse" style="margin-right:550px">Right now we only accept payments via 'Cash on Delivery', but soon we will make other methods available (Credit/Debit Card on Delivery, online payment).You can download our android application from the <a href="#" target="_blank"><b>Google Playstore</b></a></div><br>
+
+        <span data-toggle="collapse" data-target="#order_payment_delivery_q4"><h4>4.&nbsp;Are there any Delivery Costs?</h4></span>
+        <div id="order_payment_delivery_q4" class="collapse" style="margin-right:550px">We deem to provide great service, and good things always come with a cost (and they should). Only here in our case it’s quite minimal. Free delivery on orders above Rs 250. Rs 50 for orders 
+        below that.</div><br>
+
+        <span data-toggle="collapse" data-target="#order_payment_delivery_q5"><h4>5.&nbsp;How fast can you deliver?</h4></span>
+        <div id="order_payment_delivery_q5" class="collapse" style="margin-right:550px">Keeping the fast paced lives today and emergencies in mind, we wish to deliver your order ASAP. In our case the maximum time limit would be 2 hours, but we would want to reach your doorstep sooner.</div><br>
+
+        <span data-toggle="collapse" data-target="#order_payment_delivery_q6"><h4>6.&nbsp;What if I want to cancel my order?</h4></span>
+        <div id="order_payment_delivery_q6" class="collapse" style="margin-right:550px">You can cancel your order any time before the order is out for delivery.</div><br>
+
+        <span data-toggle="collapse" data-target="#order_payment_delivery_q7"><h4>7.&nbsp;I want to reschedule my order what should I do?</h4></span>
+        <div id="order_payment_delivery_q7" class="collapse" style="margin-right:550px">At the moment you cannot reschedule your order once it’s placed. You can cancel your existing order and place a new order with the required delivery time.</div><br>
+
+        <span data-toggle="collapse" data-target="#order_payment_delivery_q8"><h4>8.&nbsp;What if I have some complaint regarding my order?</h4></span>
+        <div id="order_payment_delivery_q8" class="collapse" style="margin-right:550px">You can contact us within 24 hrs from the time of order delivery, if you have any.</div><br>
+
+        <span data-toggle="collapse" data-target="#order_payment_delivery_q9"><h4>9.&nbsp;I had an issue with your service, who do I get in touch with?</h4></span>
+        <div id="order_payment_delivery_q9" class="collapse" style="margin-right:550px">We take pride not only in our service but also of the fact that we can make our customers happy and satisfied. We will revert back almost instantly and resolve the issue in the least possible time. </div><br>
+      </div>
+    </div>
+  </div>
+<!-- beginning of bottom part -->
+
+<tr>
+  <td>
+  <div class="container-fluid" style="padding-right: 0px;padding-left: 0px;margin-top: 10px;" >
+    <div class="Mobile-App" id="bottom">
+      <h3 id="playstore">Finish Grocery Shopping on the Go!<br>
+      Download the TheDreamStop Mobile App Now!</h3><br>
+      <a href="#"><img src="images/gplay.jpg" alt="Google Play Store" id="google"></a>
+      <h3 id="follow"> Follow us on </h3>
+      <figure class="member-photo"><a href="https://www.facebook.com/pages/Thedreamstop/907727009269574"><i class="fa fa-facebook-square fa-4x" id="facebook"></i></figure>
+      <figure class="member-photo"><a href="https://twitter.com/thedreamstop"><i class="fa fa-twitter-square fa-4x" id="twitter"></i></figure>
+    </div>
+  </div>   
+  </td>
+</tr>
+</table>
+
+<!-- end of bottom part -->
+
+<div id="founder_video1" style="position:absolute;top:200px;right:200px;">
+  <h3>Founder Speak</h3>
+  <iframe src="http://www.youtube.com/embed/UF8uR6Z6KLc" width="400" height="350" frameborder="0"></iframe>
+</div>
+
+<div id="founder_video2" style="position:absolute;top:650px;right:200px">
+  <h3>CTO Speak</h3>
+  <iframe src="http://www.youtube.com/embed/jpOqMQABNRw" width="400" height="350" frameborder="0"></iframe>
+</div>
+
+</div> <!-- terminating ng-app="the dream stop" -->
+</body>
+</html>

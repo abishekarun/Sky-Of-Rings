@@ -1,0 +1,8 @@
+Have to prevent placing empty cart orders.
+
+Download all libraries(bootstrap,js,jquery etc)to local folder to increase speed.
+
+
+
+
+
